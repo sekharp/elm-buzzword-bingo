@@ -12,7 +12,7 @@ Elm.Repl.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
    var tsol = {ctor: "_Tuple0"};
-   var entry = {phrase: "Future-Proof",points: 100,wasSpoken: false,id: 1};
-   var deltron3030 = entry;
-   return _elm.Repl.values = {_op: _op,deltron3030: deltron3030,entry: entry,tsol: tsol};
+   var names = _U.list(["larry","moe","curly"]);
+   var deltron3030 = names;
+   return _elm.Repl.values = {_op: _op,deltron3030: deltron3030,names: names,tsol: tsol};
 };
