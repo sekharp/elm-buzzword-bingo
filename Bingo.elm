@@ -31,6 +31,7 @@ initialModel =
 type Action
   = NoOp
   | Sort
+  | Delete Int
 
 update action model =
   case action of
@@ -39,6 +40,13 @@ update action model =
 
     Sort ->
       { model | entries = List.sortBy .points model.entries }
+
+    Delete id ->
+      let
+        remainingEntries =
+          List.filter (\e -> e.id /= id) model.entries
+      in
+        { model | entries = remainingEntries }
 
 -- VIEW
 
@@ -61,7 +69,10 @@ pageFooter =
 entryItem entry =
   li [ ]
   [ span [ class "phrase" ] [ text entry.phrase ],
-    span [ class "points" ] [ text (toString entry.points) ]
+    span [ class "points" ] [ text (toString entry.points) ],
+    button
+      [ class "delete", onClick address Delete entry.id ]
+      [ text "-" ]
   ]
 
 entryList entries =
