@@ -32,6 +32,7 @@ type Action
   = NoOp
   | Sort
   | Delete Int
+  | Mark Int
 
 update action model =
   case action of
@@ -47,6 +48,13 @@ update action model =
           List.filter (\e -> e.id /= id) model.entries
       in
         { model | entries = remainingEntries }
+
+    Mark id ->
+      let
+        updateEntry e =
+          if e.id == id then { e | wasSpoken = (not e.wasSpoken) } else e
+      in
+        { model | entries = List.map updateEntry model.entries }
 
 -- VIEW
 
@@ -67,7 +75,10 @@ pageFooter =
         [ text "The Pragmatic Studio" ] ]
 
 entryItem address entry =
-  li [ ]
+  li
+  [ classList [ ("highlight", entry.wasSpoken) ],
+    onClick address (Mark entry.id)
+  ]
   [ span [ class "phrase" ] [ text entry.phrase ],
     span [ class "points" ] [ text (toString entry.points) ],
     button
