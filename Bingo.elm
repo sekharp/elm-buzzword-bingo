@@ -3,13 +3,26 @@ module Bingo where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-
+import Signal exposing (Address)
 import String exposing (toUpper, repeat, trimRight)
 
 import StartApp.Simple as StartApp
 
 -- MODEL
 
+type alias Entry =
+  { phrase: String,
+    points: Int,
+    wasSpoken: Bool,
+    id: Int
+  }
+
+type alias Model =
+  {
+    entries: List Entry
+  }
+
+newEntry : String -> Int -> Int -> Entry
 newEntry phrase points id =
   { phrase = phrase,
   points = points,
@@ -17,6 +30,7 @@ newEntry phrase points id =
   id = id
   }
 
+initialModel : Model
 initialModel =
   { entries =
       [ newEntry "Doing Agile" 200 2,
@@ -34,6 +48,7 @@ type Action
   | Delete Int
   | Mark Int
 
+update : Action -> Model -> Model
 update action model =
   case action of
     NoOp ->
@@ -58,6 +73,7 @@ update action model =
 
 -- VIEW
 
+title : String -> Int -> Html
 title message times =
   message ++ " "
     |> toUpper
@@ -66,14 +82,17 @@ title message times =
     |> text
 
 
+pageHeader : Html
 pageHeader =
   h1 [ ] [ title "bingo!" 3 ]
 
+pageFooter : Html
 pageFooter =
   footer [ ]
     [ a [ href "https://pragmaticstudio.com" ]
         [ text "The Pragmatic Studio" ] ]
 
+entryItem : Address Action -> Entry -> Html
 entryItem address entry =
   li
   [ classList [ ("highlight", entry.wasSpoken) ],
@@ -86,12 +105,14 @@ entryItem address entry =
       [ ]
   ]
 
+totalPoints : List Entry -> Int
 totalPoints entries =
-  let
-    spokenEntries = List.filter .wasSpoken entries
-  in
-    List.sum (List.map .points spokenEntries)
+  entries
+    |> List.filter .wasSpoken
+    |> List.map .points
+    |> List.sum
 
+totalItem : Int -> Html
 totalItem total =
   li
     [ class "total" ]
@@ -99,6 +120,7 @@ totalItem total =
       span [ class "points" ] [ text (toString total) ]
     ]
 
+entryList : Address Action -> List Entry -> Html
 entryList address entries =
   let
     entryItems = List.map (entryItem address) entries
@@ -106,6 +128,7 @@ entryList address entries =
   in
     ul [ ] items
 
+view : Address Action -> Model -> Html
 view address model =
   div [ id "container" ]
   [ pageHeader,
@@ -118,10 +141,8 @@ view address model =
 
 -- WIRE IT ALL TOGETHER
 
+main : Signal Html
 main =
-  -- initialModel
-  --   |> update Sort
-  --   |> view
   StartApp.start
     { model = initialModel,
       view = view,
