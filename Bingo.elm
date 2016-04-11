@@ -25,6 +25,11 @@ type alias Model =
     nextID: Int
   }
 
+isAddInvalid : Model -> Bool
+isAddInvalid model =
+  String.isEmpty model.phraseInput || String.isEmpty model.pointsInput
+
+
 newEntry : String -> Int -> Int -> Entry
 newEntry phrase points id =
   { phrase = phrase,
@@ -90,10 +95,8 @@ update action model =
       let
         entryToAdd =
           newEntry model.phraseInput (Utils.parseInt model.pointsInput) model.nextID
-        isInvalid model =
-          String.isEmpty model.phraseInput || String.isEmpty model.pointsInput
       in
-        if isInvalid model
+        if isAddInvalid model
         then model
         else
           { model |
@@ -180,7 +183,11 @@ entryForm address model =
           Utils.onInput address UpdatePointsInput
         ]
         [ ],
-      button [ class "add", onClick address Add ] [ text "Add" ],
+      button [ class "add",
+               onClick address Add,
+               disabled (isAddInvalid model)
+             ]
+             [ text "Add" ],
       h2
         [ ]
         [ text (model.phraseInput ++ " " ++ model.pointsInput) ]
